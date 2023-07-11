@@ -9,13 +9,9 @@ begin
 	using Pkg
 	Pkg.activate("..")
 	using Revise
+	using StatsBase, Random, Distributions, Agents, Plots
+	import SimilarityBiasedLearning as sl
 end
-
-# ╔═╡ 82da47fe-10e8-11ee-0900-2be8df8e7200
-using StatsBase, Random, Distributions, Agents, Plots
-
-# ╔═╡ e44e95f0-0875-4137-b2a7-abc0384e884e
-import SimilarityBiasedLearning as sl
 
 # ╔═╡ b2594d1b-dabc-4928-8de9-bd1de34b9521
 md"
@@ -24,7 +20,7 @@ md"
 "
 
 # ╔═╡ 9dee2817-576a-4400-815f-e96d7769f958
-model = sl.initialize_similarity_learning(theta = pi, sigma_l=0.9, n=10, S=1.0)
+model = sl.initialize_similarity_learning(theta = pi, f=0.2, sigma_l=0.9, n=10, S=1.0)
 
 # ╔═╡ 579f2992-899b-4103-8579-4fa3a1c205be
 for t in 1:20000
@@ -78,15 +74,30 @@ begin
 		label="group 1"
 	)
 
-	plot(soclearn_groups, parochialism_groups, size=(700,400))
+	payoff_groups = plot(
+		model.mean_payoff_g0, 
+		label="group 0",
+		xlab="time",
+		ylab="mean payoff",
+		legend=false,
+	)
+	plot!(
+		model.mean_payoff_g1,
+		label="group 1"
+	)
+
+	plot(
+		plot(soclearn_groups, parochialism_groups), 
+		payoff_groups, 
+		size=(700,400),
+		layout=(2,1)
+	)
 end
 
 # ╔═╡ Cell order:
 # ╟─d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
-# ╟─82da47fe-10e8-11ee-0900-2be8df8e7200
-# ╟─e44e95f0-0875-4137-b2a7-abc0384e884e
 # ╟─b2594d1b-dabc-4928-8de9-bd1de34b9521
-# ╟─9dee2817-576a-4400-815f-e96d7769f958
+# ╠═9dee2817-576a-4400-815f-e96d7769f958
 # ╟─579f2992-899b-4103-8579-4fa3a1c205be
 # ╟─d136203d-5981-45e3-ab03-4152a032d6e3
 # ╟─177f883d-2bd5-4b93-b29f-b025edaea38a

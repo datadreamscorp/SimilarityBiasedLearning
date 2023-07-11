@@ -22,21 +22,23 @@ end
 function initialize_similarity_learning(;
 	N = 100,
 	f = 0.5,
-	r = 1.0,
+	ID_corr = 1.0,
 	H0 = (1.0, 0.0),
 	theta = 0,
 	n = 5,
 	mu_ID = 0.0,
-	mu_l = 0,
+	mu_l = 0.0,
 	sigma_l = 0.1,
 	mu_p = 0.01,
 	sigma_p = 0.05,
 	mu_r = 0.01,
 	sigma_r = 0.05,
-	S = 0.5,
+	S = 0.05,
 	prop_parochial = 0.0,
 	true_random = false,
 	seed = 123456789,
+	total_ticks = 10000,
+	rep = 1,
 )
 	rng = true_random ? RandomDevice() : MersenneTwister(seed)
 	
@@ -47,7 +49,7 @@ function initialize_similarity_learning(;
 			:N => N,
 			:N_total => N,
 			:f => f,
-			:r => r,
+			:ID_corr => ID_corr,
 			:H0 => H0,
 			:theta => theta,
 			:H1 => ( cos(theta), sin(theta) ),
@@ -63,13 +65,29 @@ function initialize_similarity_learning(;
 			:prop_parochial => prop_parochial,
 			#:rng => rng,
 			#data
+			:mean_payoff => Vector{Float64}(),
+			:mean_payoff_g0 => Vector{Float64}(),
+			:mean_payoff_g1 => Vector{Float64}(),
 			:mean_social => Vector{Float64}(),
 			:mean_social_g0 => Vector{Float64}(),
 			:mean_social_g1 => Vector{Float64}(),
 			:mean_parochial => Vector{Float64}(),
 			:mean_parochial_g0 => Vector{Float64}(),
 			:mean_parochial_g1 => Vector{Float64}(),
+			:mean_payoff_final => 0.0,
+			:mean_payoff_g0_final => 0.0,
+			:mean_payoff_g1_final => 0.0,
+			:mean_social_final => 0.0,
+			:mean_social_g0_final => 0.0,
+			:mean_social_g1_final => 0.0,
+			:mean_parochial_final => 0.0,
+			:mean_parochial_g0_final => 0.0,
+			:mean_parochial_g1_final => 0.0,
 			:tick => 1,
+			:total_ticks => total_ticks,
+			:rep => rep,
+			:true_random => true_random,
+			:seed => seed,
 		),
 		rng
 	)
@@ -78,7 +96,7 @@ function initialize_similarity_learning(;
 		
 		group = rand(model.rng) < model.f ? 0 : 1
 		
-		groupID = rand(model.rng) < model.r ? group : ( rand(model.rng) < model.f ? 0 : 1 )
+		groupID = rand(model.rng) < model.ID_corr ? group : ( rand(model.rng) < model.f ? 0 : 1 )
 		
 		if group == 0
 			HI = ( 
@@ -139,8 +157,8 @@ function reproduction!(model)
 	
 	g0_payoffs = [a.payoff for a in group0]
 	g1_payoffs = [a.payoff for a in group1]
-	g0_max = maximum(g0_payoffs)
-	g1_max = maximum(g1_payoffs)
+	g0_max = g0_n != 0 ? maximum(g0_payoffs) : 0
+	g1_max = g1_n != 0 ? maximum(g1_payoffs) : 0
 
 	g0_weights = Vector{Float64}()
 	for a in group0
@@ -199,44 +217,45 @@ function reproduction!(model)
 
 	#total_agents = model.N_total
 	
-	for i in (total_agents + g0_n + 1):(total_agents + g0_n + g1_n)
-		HI = ( 
-				model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-				model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
+	if g1_n > 0
+		for i in (total_agents + g0_n + 1):(total_agents + g0_n + g1_n)
+			HI = ( 
+					model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
+					model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
+				)
+
+			parent = sample(model.rng, group1, g1_w)
+			parentID = parent.groupID
+			
+			inh_parochialism = rand(model.rng) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(model.rng, Normal(0, model.sigma_p)), 0, 1 )
+
+			inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
+
+			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, [1,2,3])
+			
+			child = Learner(
+				i,
+				parent.group, 
+				rand(model.rng) < 1 - model.mu_ID ? parentID : abs(parentID - 1),
+				HI,
+				(0.0, 0.0),
+				inh_parochialism,
+				inh_soclearn,
+				inh_strategy,
+				0.0,
+				HI,
+				false,
+				[],
+				0.0,
+			)
+			add_agent!(
+				child,
+				model
 			)
 
-		parent = sample(model.rng, group1, g1_w)
-		parentID = parent.groupID
-		
-		inh_parochialism = rand(model.rng) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(model.rng, Normal(0, model.sigma_p)), 0, 1 )
-
-		inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
-
-		inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, [1,2,3])
-		
-		child = Learner(
-			i,
-			parent.group, 
-			rand(model.rng) < 1 - model.mu_ID ? parentID : abs(parentID - 1),
-			HI,
-			(0.0, 0.0),
-			inh_parochialism,
-			inh_soclearn,
-			inh_strategy,
-			0.0,
-			HI,
-			false,
-			[],
-			0.0,
-		)
-		add_agent!(
-			child,
-			model
-		)
-
-		model.N_total += 1
+			model.N_total += 1
+		end
 	end
-	
 end
 
 #
@@ -291,18 +310,22 @@ function learning!(learner, model)
 
 		x_coor = [m.trait[1] for m in learner.models]
 		y_coor = [m.trait[2] for m in learner.models]
-		learner.social_coor = median.([x_coor, y_coor])
+
+
+		learner.social_coor = median.( (x_coor, y_coor) )
 			
 	else #payoff bias
 
 		max_idx = findmax(m -> m.payoff, learner.models)[2]
 		mods = learner.models
-		winner = mods[max_idx]
+		winner = sample(model.rng, mods[max_idx])
 		learner.social_coor = winner.trait
 		
 	end
 
-	learner.trait = ( (1 - s).*learner.indiv_coor ) .+ ( s.*learner.social_coor )
+	new_coor = ( (1 - s).*learner.indiv_coor ) .+ ( s.*learner.social_coor )
+
+	learner.trait = (new_coor[1], new_coor[2])
 	
 end
 
@@ -338,12 +361,26 @@ function model_step!(model)
 
 	push!( model.mean_social_g0, mean([a.soc for a in g0]) )
 	push!( model.mean_parochial_g0, mean([a.parochial for a in g0]) )
+	push!( model.mean_payoff_g0, mean([a.payoff for a in g0]) )
 
 	push!( model.mean_social_g1, mean([a.soc for a in g1]) )
 	push!( model.mean_parochial_g1, mean([a.parochial for a in g1]) )
+	push!( model.mean_payoff_g1, mean([a.payoff for a in g1]) )
 	
 	push!( model.mean_social, mean([a.soc for a in agents]) )
 	push!( model.mean_parochial, mean([a.parochial for a in agents]) )
+	push!( model.mean_payoff, mean([a.payoff for a in agents]) )
 	model.tick += 1
 	
+	if model.tick == model.total_ticks
+		model.mean_payoff_final = last(model.mean_payoff)
+		model.mean_payoff_g0_final = last(model.mean_payoff_g0)
+		model.mean_payoff_g1_final = last(model.mean_payoff_g1)
+		model.mean_social_final = last(model.mean_social)
+		model.mean_social_g0_final = last(model.mean_social_g0)
+		model.mean_social_g1_final = last(model.mean_social_g1)
+		model.mean_parochial_final = last(model.mean_parochial)
+		model.mean_parochial_g0_final = last(model.mean_parochial_g0)
+		model.mean_parochial_g1_final = last(model.mean_parochial_g1)
+	end
 end
