@@ -1,14 +1,14 @@
-using Pkg
-Pkg.activate("..")
+@everywhere using Pkg
+@everywhere Pkg.activate("..")
 
-using CSV#, Distributed
+using CSV
 
-@everywhere begin #ANALYSIS 3.1
-	using Pkg
-    Pkg.activate("..")
+#############
+#ANALYSIS 3.1
+@everywhere begin 
 
-	import SimilarityBiasedLearning as sl
     using Agents, Random, Distributions, Statistics, StatsBase
+	import SimilarityBiasedLearning as sl
 
 	total_ticks = 10
 
@@ -54,3 +54,7 @@ _, mdf = paramscan(
 	)
 
 CSV.write("../data/analysis_3_1.csv", mdf)
+
+#############
+#ANALYSIS 3.2
+
