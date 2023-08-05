@@ -50,7 +50,7 @@ _, mdf = paramscan(
         	model_step! = sl.model_step!,
             n = total_ticks,
 			parallel=true,
-			when_model = collect(0:1:total_ticks),
+			when_model = total_ticks,
 			showprogress = true
 	)
 
