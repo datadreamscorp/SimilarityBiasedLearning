@@ -35,6 +35,8 @@ function initialize_similarity_learning(;
 	sigma_r = 0.05,
 	S = 0.05,
 	prop_parochial = 0.0,
+	init_soc = 0.0,
+	strategies = [1,2,3],
 	true_random = false,
 	seed = 123456789,
 	total_ticks = 10000,
@@ -63,7 +65,8 @@ function initialize_similarity_learning(;
 			:sigma_r => sigma_r,
 			:S => S,
 			:prop_parochial => prop_parochial,
-			#:rng => rng,
+			:strategies => strategies,
+			:init_soc => init_soc,
 			#data
 			:mean_payoff => Vector{Float64}(),
 			:mean_payoff_g0 => Vector{Float64}(),
@@ -117,7 +120,7 @@ function initialize_similarity_learning(;
 			HI,
 			(0.0, 0.0),
 			rand(model.rng) < model.prop_parochial ? 1.0 : 0.0,
-			0.0,
+			init_soc,
 			1,
 			0.0,
 			HI,
@@ -190,7 +193,7 @@ function reproduction!(model)
 
 		inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
 
-		inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, [1,2,3])
+		inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strategies)
 		
 		child = Learner(
 			i,
