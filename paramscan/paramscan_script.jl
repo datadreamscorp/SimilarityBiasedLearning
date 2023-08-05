@@ -1,6 +1,7 @@
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
 
+using Distributed
 using CSV
 
 
@@ -50,7 +51,7 @@ _, mdf = paramscan(
         	model_step! = sl.model_step!,
             n = total_ticks,
 			parallel=true,
-			when_model = total_ticks,
+			when_model = [total_ticks],
 			showprogress = true
 	)
 
