@@ -1,5 +1,12 @@
 #############
 #ANALYSIS 3.5
+using Pkg
+Pkg.activate("..")
+
+import SimilarityBiasedLearning as sl
+using CSV, Distributed
+using Agents, Random, Distributions, Statistics, StatsBase
+
 @everywhere begin 
 
     using Pkg
