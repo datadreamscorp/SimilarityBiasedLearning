@@ -1,7 +1,7 @@
 
 @everywhere begin #INCLUDE MODEL CODE AND NECESSARY LIBRARIES
 	using Pkg
-	Pkg.activate(".")
+	Pkg.activate("..")
 
 	import SimilarityBiasedLearning as sl
     using Agents, Random, Distributions, Statistics, StatsBase
