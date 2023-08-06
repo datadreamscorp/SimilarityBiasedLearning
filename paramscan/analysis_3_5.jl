@@ -1,27 +1,30 @@
 #############
-#ANALYSIS 3.1
-@everywhere begin #INCLUDE MODEL CODE AND NECESSARY LIBRARIES
+#ANALYSIS 3.5
+@everywhere begin 
 
-	using Pkg
+    using Pkg
 	Pkg.activate("..")
 
-	import SimilarityBiasedLearning as sl
+    import SimilarityBiasedLearning as sl
     using Agents, Random, Distributions, Statistics, StatsBase
 
 	total_ticks = 10000
 
 	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
 	    :N => [100, 1000],
-		:mu_p => 0.0,
+		:mu_p => [0.0, 0.01],
         :strategies => [[1]],
-		:n => 1,
-        :theta => 0.0,
-        :f => 0.0,
+		:n => [1, 5, 15, 20],
+        :theta => [0.0],
+        :f => collect(0.5:0.1:1.0),
+        :ID_corr => collect(0.0:0.1:1.0)
         :sigma_l => collect(0.0:0.01:0.5),
         :mu_r => [0.0, 0.01],
 		:rep => collect(1:100),
 		:true_random => true,
-		:total_ticks => total_ticks
+		:total_ticks => total_ticks,
+        :prop_parochial => [1.0],
+		:init_soc => [1.0]
 	)
 
 
@@ -51,4 +54,4 @@ _, mdf = paramscan(
 			showprogress = true
 	)
 
-CSV.write("../data/analysis_3_1.csv", mdf)
+CSV.write("../data/analysis_3_5.csv", mdf)

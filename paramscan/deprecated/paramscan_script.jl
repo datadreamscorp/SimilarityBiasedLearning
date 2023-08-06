@@ -1,9 +1,8 @@
-@everywhere using Pkg
-@everywhere Pkg.activate("..")
-
 using Distributed
 using CSV
 
+@everywhere using Pkg
+@everywhere Pkg.activate("..")
 
 #############
 #ANALYSIS 3.1
@@ -72,10 +71,7 @@ CSV.write("../data/analysis_3_1.csv", mdf)
 		:mu_p => 0.0,
         :mu_l => 0.0,
 		:n => [1, 5, 15],
-        :theta => [
-            0.0, pi/12, pi/6, pi/4, pi/3, 5*pi/12, pi/2, 
-            7*pi/12, 2*pi/3, 3*pi/4, 5*pi/6, 11*pi/12, pi
-        ],
+        :theta => collect(0.0:20.0:180.0),
         :f => collect(0.5:0.1:1.0),
         :sigma_l => collect(0.0:0.01:0.5),
         :mu_r => [0.0, 0.01],
@@ -128,10 +124,7 @@ CSV.write("../data/analysis_3_2.csv", mdf)
 		:mu_p => [0.0, 0.01],
         :mu_l => [0.0],
 		:n => [1, 5, 15],
-        :theta => [
-            0.0, pi/12, pi/6, pi/4, pi/3, 5*pi/12, pi/2, 
-            7*pi/12, 2*pi/3, 3*pi/4, 5*pi/6, 11*pi/12, pi
-        ],
+        :theta => collect(0.0:20.0:180.0),
         :f => [0.5, 1.0],
         :ID_corr => collect(0.0:0.1:1.0)
         :sigma_l => collect(0.0:0.01:0.5),
@@ -186,10 +179,7 @@ CSV.write("../data/analysis_3_3.csv", mdf)
         :mu_l => [0.01],
         :strategies => [[1,2], [1,3], [1,2,3]]
 		:n => [1, 5, 15],
-        :theta => [
-            0.0, pi/12, pi/6, pi/4, pi/3, 5*pi/12, pi/2, 
-            7*pi/12, 2*pi/3, 3*pi/4, 5*pi/6, 11*pi/12, pi
-        ],
+        :theta => collect(0.0:20.0:180.0),
         :f => [0.5, 1.0],
         :ID_corr => collect(0.0:0.1:1.0)
         :sigma_l => collect(0.0:0.01:0.5),
@@ -242,11 +232,9 @@ CSV.write("../data/analysis_3_4.csv", mdf)
 	    :N => [100, 1000],
 		:mu_p => [0.0, 0.01],
         :mu_l => [0.01],
-        :strategies => [[1,2], [1,3], [1,2,3]]
+        #:strategies => [[1,2], [1,3], [1,2,3]]
 		:n => [1, 5, 15],
-        :theta => [
-            0.0
-        ],
+        :theta => [0.0],
 		:prop_parochial => [1.0],
 		:init_soc => [1.0],
         :f => [0.5, 1.0],

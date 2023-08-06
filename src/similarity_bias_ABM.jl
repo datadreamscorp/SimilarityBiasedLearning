@@ -27,16 +27,16 @@ function initialize_similarity_learning(;
 	theta = 0,
 	n = 5,
 	mu_ID = 0.0,
-	mu_l = 0.0,
+	mu_l = 0.01,
 	sigma_l = 0.1,
 	mu_p = 0.01,
 	sigma_p = 0.05,
 	mu_r = 0.01,
-	sigma_r = 0.05,
+	sigma_r = 0.15,
 	S = 0.05,
 	prop_parochial = 0.0,
 	init_soc = 0.0,
-	strategies = [1,2,3],
+	strategies = [1],
 	true_random = false,
 	seed = 123456789,
 	total_ticks = 10000,
@@ -54,7 +54,7 @@ function initialize_similarity_learning(;
 			:ID_corr => ID_corr,
 			:H0 => H0,
 			:theta => theta,
-			:H1 => ( cos(theta), sin(theta) ),
+			:H1 => ( cosd(theta), sind(theta) ),
 			:n => n,
 			:mu_ID => mu_ID,
 			:mu_l => mu_l,
@@ -77,6 +77,15 @@ function initialize_similarity_learning(;
 			:mean_parochial => Vector{Float64}(),
 			:mean_parochial_g0 => Vector{Float64}(),
 			:mean_parochial_g1 => Vector{Float64}(),
+			:prop_unbiased => Vector{Float64}(),
+			:prop_unbiased_g1 => Vector{Float64}(),
+			:prop_unbiased_g0 => Vector{Float64}(),
+			:prop_conformist => Vector{Float64}(),
+			:prop_conformist_g1 => Vector{Float64}(),
+			:prop_conformist_g0 => Vector{Float64}(),
+			:prop_payoff => Vector{Float64}(),
+			:prop_payoff_g1 => Vector{Float64}(),
+			:prop_payoff_g0 => Vector{Float64}(),
 			:mean_payoff_final => 0.0,
 			:mean_payoff_g0_final => 0.0,
 			:mean_payoff_g1_final => 0.0,
@@ -86,6 +95,15 @@ function initialize_similarity_learning(;
 			:mean_parochial_final => 0.0,
 			:mean_parochial_g0_final => 0.0,
 			:mean_parochial_g1_final => 0.0,
+			:prop_unbiased_final => 0.0,
+			:prop_unbiased_g1_final => 0.0,
+			:prop_unbiased_g0_final => 0.0,
+			:prop_conformist_final => 0.0,
+			:prop_conformist_g1_final => 0.0,
+			:prop_conformist_g0_final => 0.0,
+			:prop_payoff_final => 0.0,
+			:prop_payoff_g1_final => 0.0,
+			:prop_payoff_g0_final => 0.0,
 			:tick => 1,
 			:total_ticks => total_ticks,
 			:rep => rep,
@@ -234,7 +252,7 @@ function reproduction!(model)
 
 			inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
 
-			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, [1,2,3])
+			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strategies)
 			
 			child = Learner(
 				i,
@@ -314,14 +332,14 @@ function learning!(learner, model)
 		x_coor = [m.trait[1] for m in learner.models]
 		y_coor = [m.trait[2] for m in learner.models]
 
-
 		learner.social_coor = median.( (x_coor, y_coor) )
 			
 	else #payoff bias
 
 		max_idx = findmax(m -> m.payoff, learner.models)[2]
 		mods = learner.models
-		winner = sample(model.rng, mods[max_idx])
+		#winner = sample(model.rng, mods[max_idx])
+		winner = mods[max_idx]
 		learner.social_coor = winner.trait
 		
 	end
@@ -373,17 +391,85 @@ function model_step!(model)
 	push!( model.mean_social, mean([a.soc for a in agents]) )
 	push!( model.mean_parochial, mean([a.parochial for a in agents]) )
 	push!( model.mean_payoff, mean([a.payoff for a in agents]) )
+
+	if length(model.strategies) > 1
+
+		push!(
+			model.prop_unbiased, 
+			length(filter(a -> a.learning_strategy == 1, agents)) / model.N 
+			)
+
+		push!( 
+			model.prop_unbiased_g0, 
+			length(g0) > 0 ? length(filter(a -> a.learning_strategy == 1, g0)) / length(g0) : 0
+			)
+
+		push!( 
+			model.prop_unbiased_g0, 
+			length(g1) > 0 ? length(filter(a -> a.learning_strategy == 1, g1)) / length(g1) : 0
+			)
+		
+		push!(
+			model.prop_conformist, 
+			length(filter(a -> a.learning_strategy == 2, agents)) / model.N 
+			)
+
+		push!( 
+			model.prop_conformist_g0, 
+			length(g0) > 0 ? length(filter(a -> a.learning_strategy == 2, g0)) / length(g0) : 0
+			)
+
+		push!( 
+			model.prop_conformist_g1, 
+			length(g1) > 0 ? length(filter(a -> a.learning_strategy == 2, g1)) / length(g1) : 0
+			)
+
+		push!(
+			model.prop_payoff, 
+			length(filter(a -> a.learning_strategy == 3, agents)) / model.N 
+			)
+
+		push!( 
+			model.prop_payoff_g0, 
+			length(g0) > 0 ? length(filter(a -> a.learning_strategy == 3, g0)) / length(g0) : 0
+			)
+		
+		push!( 
+			model.prop_payoff_g1, 
+			length(g1) > 0 ? length(filter(a -> a.learning_strategy == 3, g1)) / length(g1) : 0
+			)
+
+	end
+
 	model.tick += 1
 	
 	if model.tick == model.total_ticks
+
 		model.mean_payoff_final = last(model.mean_payoff)
 		model.mean_payoff_g0_final = last(model.mean_payoff_g0)
 		model.mean_payoff_g1_final = last(model.mean_payoff_g1)
+
 		model.mean_social_final = last(model.mean_social)
 		model.mean_social_g0_final = last(model.mean_social_g0)
 		model.mean_social_g1_final = last(model.mean_social_g1)
+
 		model.mean_parochial_final = last(model.mean_parochial)
 		model.mean_parochial_g0_final = last(model.mean_parochial_g0)
 		model.mean_parochial_g1_final = last(model.mean_parochial_g1)
+
+		if length(model.strategies) > 1
+			model.prop_unbiased_final = length(model.prop_unbiased) > 0 ? last(model.prop_unbiased) : 0
+			model.prop_unbiased_g0_final = length(model.prop_unbiased_g0) > 0 ? last(model.prop_unbiased_g0) : 0
+			model.prop_unbiased_g1_final = length(model.prop_unbiased_g1) > 0 ? last(model.prop_unbiased_g1) : 0
+
+			model.prop_conformist_final = length(model.prop_conformist) > 0 ? last(model.prop_conformist) : 0
+			model.prop_conformist_g0_final = length(model.prop_conformist_g0) > 0 ? last(model.prop_conformist_g0) : 0
+			model.prop_conformist_g1_final = length(model.prop_conformist_g1) > 0 ? last(model.prop_conformist_g1) : 0
+
+			model.prop_payoff_final = length(model.prop_payoff) > 0 ? last(model.prop_payoff) : 0
+			model.prop_payoff_g0_final = length(model.prop_payoff_g0) > 0 ? last(model.prop_payoff_g0) : 0
+			model.prop_payoff_g1_final = length(model.prop_payoff_g1) > 0 ? last(model.prop_payoff_g1) : 0
+		end
+
 	end
 end

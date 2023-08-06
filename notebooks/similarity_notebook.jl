@@ -20,18 +20,18 @@ md"
 "
 
 # ╔═╡ 9dee2817-576a-4400-815f-e96d7769f958
-model = sl.initialize_similarity_learning(theta = pi, f=0.2, sigma_l=0.9, n=10, S=1.0)
+model = sl.initialize_similarity_learning(theta = 180, f=0.5, sigma_l=0.5, n=10, sigma_r=0.15, S=0.05, strategies=[1,2], mu_l=0.01, true_random=true)
 
 # ╔═╡ 579f2992-899b-4103-8579-4fa3a1c205be
-for t in 1:20000
+for t in 1:10000
 	sl.model_step!(model)
 end
 
 # ╔═╡ d136203d-5981-45e3-ab03-4152a032d6e3
 begin
-	model.H1 = (1.0, 0.0)
+	model.H1 = (0.0, 0.0)
 	#model.sigma_l = 0.01
-	for t in 1:20000
+	for t in 1:10000
 		sl.model_step!(model)
 	end
 end
@@ -94,11 +94,19 @@ begin
 	)
 end
 
+# ╔═╡ 400eb9ae-42a8-4335-9679-0688e87bf3f0
+plot(
+	model.prop_unbiased,
+	xlab="time",
+	label="prop. unbiased"
+)
+
 # ╔═╡ Cell order:
 # ╟─d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
 # ╟─b2594d1b-dabc-4928-8de9-bd1de34b9521
-# ╟─9dee2817-576a-4400-815f-e96d7769f958
+# ╠═9dee2817-576a-4400-815f-e96d7769f958
 # ╟─579f2992-899b-4103-8579-4fa3a1c205be
 # ╟─d136203d-5981-45e3-ab03-4152a032d6e3
 # ╟─177f883d-2bd5-4b93-b29f-b025edaea38a
 # ╟─5249f71a-df66-4662-aa2e-e93c4e91e454
+# ╟─400eb9ae-42a8-4335-9679-0688e87bf3f0
