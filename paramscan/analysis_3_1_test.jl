@@ -6,7 +6,7 @@
 	import SimilarityBiasedLearning as sl
     using Agents, Random, Distributions, Statistics, StatsBase
 
-	total_ticks = 10000
+	total_ticks = 10
 
 	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
 	    :N => [100, 1000],
@@ -45,7 +45,7 @@ _, mdf = paramscan(
         	model_step! = sl.model_step!,
             n = total_ticks,
 			parallel=true,
-			when_model = [total_ticks],
+			when_model = collect(0:1:total_ticks),
 			showprogress = true
 	)
 
