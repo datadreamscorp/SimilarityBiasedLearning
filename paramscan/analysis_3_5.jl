@@ -2,6 +2,7 @@
 #ANALYSIS 3.5
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
+@everywhere Pkg.instantiate()
 
 @everywhere import SimilarityBiasedLearning as sl
 @everywhere using CSV, Distributed

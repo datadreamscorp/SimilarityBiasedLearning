@@ -1,21 +1,24 @@
 #############
 #ANALYSIS 3.4
-using Pkg
-Pkg.activate("..")
+@everywhere using Pkg
+@everywhere Pkg.activate("..")
+@everywhere Pkg.instantiate()
 
-import SimilarityBiasedLearning as sl
-using CSV, Distributed
-using Agents, Random, Distributions, Statistics, StatsBase
+@everywhere import SimilarityBiasedLearning as sl
+@everywhere using CSV, Distributed
+@everywhere using Agents, Random, Distributions, Statistics, StatsBase
+
+@everywhere total_ticks = 10000
 
 @everywhere begin 
 
-    using Pkg
-	Pkg.activate("..")
+    #using Pkg
+	#Pkg.activate("..")
 
-    import SimilarityBiasedLearning as sl
-    using Agents, Random, Distributions, Statistics, StatsBase
+    #import SimilarityBiasedLearning as sl
+    #using Agents, Random, Distributions, Statistics, StatsBase
 
-	total_ticks = 10000
+	#total_ticks = 10000
 
 	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
 	    :N => [100, 1000],
