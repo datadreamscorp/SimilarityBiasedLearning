@@ -8,28 +8,23 @@
 @everywhere using CSV, Distributed
 @everywhere using Agents, Random, Distributions, Statistics, StatsBase
 
-@everywhere total_ticks = 10000
+@everywhere total_ticks = 3000
 
 @everywhere begin 
 
-    #using Pkg
-	#Pkg.activate("..")
-
-    #import SimilarityBiasedLearning as sl
-    #using Agents, Random, Distributions, Statistics, StatsBase
-
-	#total_ticks = 10000
-
 	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
 	    :N => [50, 200],
-		:mu_p => [0.0, 0.01],
+		:mu_r => 0.05, 
+        :sigma_r => 0.05,
+        :mu_p => [0.0, 0.05],
+        :sigma_p => 0.05,
+        :S => 0.05,
         :strategies => [[1]],
 		:n => [1, 5, 15],
         :theta => [0.0],
-        :f => collect(0.5:0.1:1.0),
-        :ID_corr => collect(0.0:0.1:1.0),
+        :f => collect(0.5:0.25:1.0),
         :sigma_l => collect(0.0:0.01:0.5),
-        :mu_r => [0.0, 0.01],
+        :ID_corr => collect(0.0:0.25:1.0),
 		:rep => collect(1:100),
 		:true_random => true,
 		:total_ticks => total_ticks,
@@ -60,7 +55,7 @@ _, mdf = paramscan(
         	model_step! = sl.model_step!,
             n = total_ticks,
 			parallel = true,
-			when_model = [total_ticks],
+			when_model = collect(0:10:total_ticks),
 			showprogress = true
 	)
 

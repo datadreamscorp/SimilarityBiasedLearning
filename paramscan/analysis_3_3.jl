@@ -1,5 +1,5 @@
 #############
-#ANALYSIS 3.1
+#ANALYSIS 3.2 and 3.3
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
 @everywhere Pkg.instantiate()
@@ -10,21 +10,21 @@
 
 @everywhere total_ticks = 3000
 
-@everywhere begin #INCLUDE MODEL CODE AND NECESSARY LIBRARIES
+@everywhere begin 
 
-	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
+    parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
 	    :N => [50, 200],
-		:mu_r => [0.0, 0.05], 
-		:sigma_r => 0.05, 
-		:mu_p => 0.0,
-		:sigma_p => 0.0,
-		:S => 0.05,
+        :mu_r => 0.05, 
+		:sigma_r => 0.05,
+		:mu_p => 0.05,
+        :sigma_p => 0.05,
+        :S => 0.05,
         :strategies => [[1]],
-		:n => 1,
-        :theta => 0.0,
-        :f => 0.0,
-        :sigma_l => collect(0.0:0.01:0.5),
-		:ID_corr => 1.0,
+		:n => [1, 5, 15],
+        :theta => collect(0.0:10.0:180.0),
+        :f => collect(0.5:0.25:1.0),
+		:sigma_l => collect(0.0:0.01:0.5),
+        :ID_corr => collect(0.0:0.25:1.0),
 		:rep => collect(1:100),
 		:true_random => true,
 		:total_ticks => total_ticks
@@ -56,4 +56,6 @@ _, mdf = paramscan(
 			showprogress = true
 	)
 
-CSV.write("../data/analysis_3_1.csv", mdf)
+CSV.write("../data/analysis_3_3.csv", mdf)
+
+

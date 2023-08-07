@@ -27,23 +27,40 @@ function initialize_similarity_learning(;
 	theta = 0,
 	n = 5,
 	mu_ID = 0.0,
-	mu_l = 0.01,
-	sigma_l = 0.1,
-	mu_p = 0.01,
+	mu_l = 0.01, #social learning strategy mutation rate
+	sigma_l = 0.1, #individual learning error
+	mu_p = 0.05,
 	sigma_p = 0.05,
-	mu_r = 0.01,
-	sigma_r = 0.15,
+	mu_r = 0.05,
+	sigma_r = 0.05,
 	S = 0.05,
 	prop_parochial = 0.0,
 	init_soc = 0.0,
-	strategies = [1],
+	strategies = "UL",
 	true_random = false,
 	seed = 123456789,
-	total_ticks = 10000,
+	total_ticks = 3000,
 	rep = 1,
 )
 	rng = true_random ? RandomDevice() : MersenneTwister(seed)
 	
+	if strategies == "UL"
+		strat_pool = [1]
+	elseif strategies == "CB"
+		strat_pool = [2]
+	elseif strategies == "PB"
+		strat_pool = [3]
+	elseif strategies == "UL&CB"
+		strat_pool = [1, 2]
+	elseif strategies == "UL&PB"
+		strat_pool = [1, 3]
+	elseif strategies == "CB&PB"
+		strat_pool = [2, 3]
+	elseif strategies == "ALLTHREE"
+		strat_pool = [1, 2, 3]
+	else
+		error(raw"Invalid learning strategy pool.")
+
 	model = ABM( 
 		Learner, 
 		nothing;
@@ -65,7 +82,7 @@ function initialize_similarity_learning(;
 			:sigma_r => sigma_r,
 			:S => S,
 			:prop_parochial => prop_parochial,
-			:strategies => strategies,
+			:strat_pool => strat_pool,
 			:init_soc => init_soc,
 			#data
 			:mean_payoff => Vector{Float64}(),
@@ -211,7 +228,7 @@ function reproduction!(model)
 
 		inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
 
-		inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strategies)
+		inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strat_pool)
 		
 		child = Learner(
 			i,
@@ -252,7 +269,7 @@ function reproduction!(model)
 
 			inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
 
-			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strategies)
+			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strat_pool)
 			
 			child = Learner(
 				i,
@@ -392,7 +409,7 @@ function model_step!(model)
 	push!( model.mean_parochial, mean([a.parochial for a in agents]) )
 	push!( model.mean_payoff, mean([a.payoff for a in agents]) )
 
-	if length(model.strategies) > 1
+	if length(model.strat_pool) > 1
 
 		push!(
 			model.prop_unbiased, 
@@ -457,7 +474,7 @@ function model_step!(model)
 		model.mean_parochial_g0_final = last(model.mean_parochial_g0)
 		model.mean_parochial_g1_final = last(model.mean_parochial_g1)
 
-		if length(model.strategies) > 1
+		if length(model.strat_pool) > 1
 			model.prop_unbiased_final = length(model.prop_unbiased) > 0 ? last(model.prop_unbiased) : 0
 			model.prop_unbiased_g0_final = length(model.prop_unbiased_g0) > 0 ? last(model.prop_unbiased_g0) : 0
 			model.prop_unbiased_g1_final = length(model.prop_unbiased_g1) > 0 ? last(model.prop_unbiased_g1) : 0

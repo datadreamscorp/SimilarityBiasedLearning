@@ -21,13 +21,15 @@ md"
 
 # ╔═╡ 9dee2817-576a-4400-815f-e96d7769f958
 model = sl.initialize_similarity_learning(
-	N=200,
+	N=50,
 	theta=180, 
 	f=0.5, 
 	sigma_l=0.5, 
 	n=5, 
-	mu_r=0.01, 
-	sigma_r=0.15, 
+	mu_r=0.05, 
+	sigma_r=0.05, 
+	mu_p=0.05,
+	sigma_p=0.05,
 	S=0.05,
 	strategies=[1,2],
 	mu_l=0.01,
