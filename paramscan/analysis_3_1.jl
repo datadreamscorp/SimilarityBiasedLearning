@@ -12,16 +12,8 @@
 
 @everywhere begin #INCLUDE MODEL CODE AND NECESSARY LIBRARIES
 
-	#using Pkg
-	#Pkg.activate("..")
-
-	#import SimilarityBiasedLearning as sl
-    #using Agents, Random, Distributions, Statistics, StatsBase
-
-	#total_ticks = 10000
-
 	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
-	    :N => [100, 1000],
+	    :N => [50, 200],
 		:mu_p => 0.0,
         :strategies => [[1]],
 		:n => 1,
