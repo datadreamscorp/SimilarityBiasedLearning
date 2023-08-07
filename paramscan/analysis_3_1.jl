@@ -26,7 +26,6 @@
 		:total_ticks => total_ticks
 	)
 
-
 	mdata = [
 		:mean_payoff_final,
 		:mean_payoff_g0_final,

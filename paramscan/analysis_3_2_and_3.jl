@@ -27,7 +27,7 @@
 		:n => [1, 5, 15],
         :theta => collect(0.0:10.0:180.0),
         :f => collect(0.5:0.1:1.0),
-        :ID_corr => collect(0.0:0.1:1.0)
+        :ID_corr => collect(0.0:0.1:1.0),
         :sigma_l => collect(0.0:0.01:0.5),
         :mu_r => [0.0, 0.01],
 		:rep => collect(1:100),
