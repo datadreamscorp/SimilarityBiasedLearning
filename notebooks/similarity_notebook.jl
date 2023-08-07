@@ -21,8 +21,8 @@ md"
 
 # ╔═╡ 9dee2817-576a-4400-815f-e96d7769f958
 model = sl.initialize_similarity_learning(
-	N=50,
-	theta=180, 
+	N=200,
+	theta=180.0, 
 	f=0.5, 
 	sigma_l=0.5, 
 	n=5, 
@@ -31,13 +31,13 @@ model = sl.initialize_similarity_learning(
 	mu_p=0.05,
 	sigma_p=0.05,
 	S=0.05,
-	strategies=[1,2],
+	strategies="UL&CB",
 	mu_l=0.01,
 	true_random=true
 )
 
 # ╔═╡ 579f2992-899b-4103-8579-4fa3a1c205be
-for t in 1:10000
+for t in 1:2500
 	sl.model_step!(model)
 end
 
@@ -45,7 +45,7 @@ end
 begin
 	model.H1 = (1.0, 0.0)
 	#model.sigma_l = 0.01
-	for t in 1:5000
+	for t in 1:2500
 		sl.model_step!(model)
 	end
 end
@@ -115,8 +115,22 @@ plot(
 	label="prop. unbiased"
 )
 
+# ╔═╡ 66e7b3cd-f94f-4c01-971b-2d465e2bbbe5
+agents = allagents(model)|>collect
+
+# ╔═╡ 884b3907-34a6-4827-9d5d-5a0af4f96bb0
+function lol(agents)
+	agents[1].id = 1
+end
+
+# ╔═╡ 1e416a73-9b65-426e-a01e-e9e46e690505
+lol(allagents(model)|>collect)
+
+# ╔═╡ 80c144f9-f4c6-4cab-b76d-632afd2862d8
+agents
+
 # ╔═╡ Cell order:
-# ╟─d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
+# ╠═d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
 # ╟─b2594d1b-dabc-4928-8de9-bd1de34b9521
 # ╠═9dee2817-576a-4400-815f-e96d7769f958
 # ╠═579f2992-899b-4103-8579-4fa3a1c205be
@@ -124,3 +138,7 @@ plot(
 # ╟─177f883d-2bd5-4b93-b29f-b025edaea38a
 # ╟─5249f71a-df66-4662-aa2e-e93c4e91e454
 # ╟─400eb9ae-42a8-4335-9679-0688e87bf3f0
+# ╠═66e7b3cd-f94f-4c01-971b-2d465e2bbbe5
+# ╠═884b3907-34a6-4827-9d5d-5a0af4f96bb0
+# ╠═1e416a73-9b65-426e-a01e-e9e46e690505
+# ╠═80c144f9-f4c6-4cab-b76d-632afd2862d8

@@ -18,6 +18,70 @@ using StatsBase, Random, Distributions, Agents
 	p_rep::Float64
 end
 
+Base.@kwdef mutable struct Parameters
+	N::Int64
+	N_total::Int64
+	f::Float64
+	ID_corr::Float64 
+	H0::Tuple{Float64, Float64}
+	theta::Float64
+	H1::Tuple{Float64, Float64}
+	n::Int64
+	mu_ID::Float64
+	mu_l::Float64
+	sigma_l::Float64
+	mu_p::Float64
+	sigma_p::Float64
+	mu_r::Float64
+	sigma_r::Float64
+	S::Float64
+	prop_parochial::Float64
+	init_soc::Float64
+	strat_pool::Vector{Int64}
+	#data
+	mean_payoff::Vector{Float64}
+	mean_payoff_g0::Vector{Float64}
+	mean_payoff_g1::Vector{Float64}
+	mean_social::Vector{Float64}
+	mean_social_g0::Vector{Float64}
+	mean_social_g1::Vector{Float64}
+	mean_parochial::Vector{Float64}
+	mean_parochial_g0::Vector{Float64}
+	mean_parochial_g1::Vector{Float64}
+	prop_unbiased::Vector{Float64}
+	prop_unbiased_g1::Vector{Float64}
+	prop_unbiased_g0::Vector{Float64}
+	prop_conformist::Vector{Float64}
+	prop_conformist_g1::Vector{Float64}
+	prop_conformist_g0::Vector{Float64}
+	prop_payoff::Vector{Float64}
+	prop_payoff_g1::Vector{Float64}
+	prop_payoff_g0::Vector{Float64}
+	mean_payoff_final::Float64
+	mean_payoff_g0_final::Float64
+	mean_payoff_g1_final::Float64
+	mean_social_final::Float64
+	mean_social_g0_final::Float64
+	mean_social_g1_final::Float64
+	mean_parochial_final::Float64
+	mean_parochial_g0_final::Float64
+	mean_parochial_g1_final::Float64
+	prop_unbiased_final::Float64
+	prop_unbiased_g1_final::Float64
+	prop_unbiased_g0_final::Float64
+	prop_conformist_final::Float64
+	prop_conformist_g1_final::Float64
+	prop_conformist_g0_final::Float64
+	prop_payoff_final::Float64
+	prop_payoff_g1_final::Float64
+	prop_payoff_g0_final::Float64
+	tick::Int64
+	total_ticks::Int64
+	rep::Int64
+	true_random::Bool
+	seed::Int64
+end
+
 #
 function initialize_similarity_learning(;
 	N = 100,
@@ -46,87 +110,97 @@ function initialize_similarity_learning(;
 	
 	if strategies == "UL"
 		strat_pool = [1]
+
 	elseif strategies == "CB"
 		strat_pool = [2]
+
 	elseif strategies == "PB"
 		strat_pool = [3]
+
 	elseif strategies == "UL&CB"
 		strat_pool = [1, 2]
+
 	elseif strategies == "UL&PB"
 		strat_pool = [1, 3]
+
 	elseif strategies == "CB&PB"
 		strat_pool = [2, 3]
+
 	elseif strategies == "ALLTHREE"
 		strat_pool = [1, 2, 3]
+
 	else
 		error(raw"Invalid learning strategy pool.")
+	end
+
+	properties = Parameters(
+		N,
+		N,
+		f,
+		ID_corr,
+		H0,
+		theta,
+		( cosd(theta), sind(theta) ),
+		n,
+		mu_ID,
+		mu_l,
+		sigma_l,
+		mu_p,
+		sigma_p,
+		mu_r,
+		sigma_r,
+		S,
+		prop_parochial,
+		init_soc,
+		strat_pool,
+	#data
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		Vector{Float64}(),
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		1,
+		total_ticks,
+		rep,
+		true_random,
+		seed
+	)
 
 	model = ABM( 
 		Learner, 
 		nothing;
-		properties = Dict(
-			:N => N,
-			:N_total => N,
-			:f => f,
-			:ID_corr => ID_corr,
-			:H0 => H0,
-			:theta => theta,
-			:H1 => ( cosd(theta), sind(theta) ),
-			:n => n,
-			:mu_ID => mu_ID,
-			:mu_l => mu_l,
-			:sigma_l => sigma_l,
-			:mu_p => mu_p,
-			:sigma_p => sigma_p,
-			:mu_r => mu_r,
-			:sigma_r => sigma_r,
-			:S => S,
-			:prop_parochial => prop_parochial,
-			:strat_pool => strat_pool,
-			:init_soc => init_soc,
-			#data
-			:mean_payoff => Vector{Float64}(),
-			:mean_payoff_g0 => Vector{Float64}(),
-			:mean_payoff_g1 => Vector{Float64}(),
-			:mean_social => Vector{Float64}(),
-			:mean_social_g0 => Vector{Float64}(),
-			:mean_social_g1 => Vector{Float64}(),
-			:mean_parochial => Vector{Float64}(),
-			:mean_parochial_g0 => Vector{Float64}(),
-			:mean_parochial_g1 => Vector{Float64}(),
-			:prop_unbiased => Vector{Float64}(),
-			:prop_unbiased_g1 => Vector{Float64}(),
-			:prop_unbiased_g0 => Vector{Float64}(),
-			:prop_conformist => Vector{Float64}(),
-			:prop_conformist_g1 => Vector{Float64}(),
-			:prop_conformist_g0 => Vector{Float64}(),
-			:prop_payoff => Vector{Float64}(),
-			:prop_payoff_g1 => Vector{Float64}(),
-			:prop_payoff_g0 => Vector{Float64}(),
-			:mean_payoff_final => 0.0,
-			:mean_payoff_g0_final => 0.0,
-			:mean_payoff_g1_final => 0.0,
-			:mean_social_final => 0.0,
-			:mean_social_g0_final => 0.0,
-			:mean_social_g1_final => 0.0,
-			:mean_parochial_final => 0.0,
-			:mean_parochial_g0_final => 0.0,
-			:mean_parochial_g1_final => 0.0,
-			:prop_unbiased_final => 0.0,
-			:prop_unbiased_g1_final => 0.0,
-			:prop_unbiased_g0_final => 0.0,
-			:prop_conformist_final => 0.0,
-			:prop_conformist_g1_final => 0.0,
-			:prop_conformist_g0_final => 0.0,
-			:prop_payoff_final => 0.0,
-			:prop_payoff_g1_final => 0.0,
-			:prop_payoff_g0_final => 0.0,
-			:tick => 1,
-			:total_ticks => total_ticks,
-			:rep => rep,
-			:true_random => true_random,
-			:seed => seed,
-		),
+		properties = properties,
 		rng
 	)
 	
@@ -156,7 +230,7 @@ function initialize_similarity_learning(;
 			(0.0, 0.0),
 			rand(model.rng) < model.prop_parochial ? 1.0 : 0.0,
 			init_soc,
-			1,
+			sample(model.rng, model.strat_pool),
 			0.0,
 			HI,
 			true,

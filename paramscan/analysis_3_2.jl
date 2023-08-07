@@ -19,10 +19,10 @@
 		:mu_p => 0.0,
 		:sigma_p => 0.0,
 		:S => 0.05,
-        :strategies => [[1]],
+        :strategies => "UL",
 		:n => [1, 5],
-        :theta => collect(0.0:10.0:180.0),
-        :f => collect(0.5:0.25:1.0),
+        :theta => collect(0.0:45.0:180.0),
+        :f => collect(0.5:0.2:1.0),
         :sigma_l => collect(0.0:0.01:0.5),
         :ID_corr => 1.0,
 		:rep => collect(1:100),
@@ -52,7 +52,7 @@ _, mdf = paramscan(
         	model_step! = sl.model_step!,
             n = total_ticks,
 			parallel=true,
-			when_model = collect(0:10:total_ticks),
+			when_model = [total_ticks],
 			showprogress = true
 	)
 
