@@ -1,5 +1,5 @@
 #############
-#ANALYSIS 3.2 and 3.3
+#ANALYSIS 3.1
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
 @everywhere Pkg.instantiate()
@@ -8,11 +8,11 @@
 @everywhere using CSV, Distributed
 @everywhere using Agents, Random, Distributions, Statistics, StatsBase
 
-@everywhere total_ticks = 10000
+@everywhere total_ticks = 10
 
-@everywhere begin 
+@everywhere begin #INCLUDE MODEL CODE AND NECESSARY LIBRARIES
 
-    #using Pkg
+	#using Pkg
 	#Pkg.activate("..")
 
 	#import SimilarityBiasedLearning as sl
@@ -20,20 +20,20 @@
 
 	#total_ticks = 10000
 
-    parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
-	    :N => [50, 200],
-		:mu_p => [0.0, 0.01],
+	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
+	    :N => [100, 1000],
+		:mu_p => 0.0,
         :strategies => [[1]],
-		:n => [1, 5, 15],
-        :theta => collect(0.0:10.0:180.0),
-        :f => collect(0.5:0.1:1.0),
-        :ID_corr => collect(0.0:0.1:1.0)
+		:n => 1,
+        :theta => 0.0,
+        :f => 0.0,
         :sigma_l => collect(0.0:0.01:0.5),
         :mu_r => [0.0, 0.01],
 		:rep => collect(1:100),
 		:true_random => true,
 		:total_ticks => total_ticks
 	)
+
 
 	mdata = [
 		:mean_payoff_final,
@@ -61,6 +61,4 @@ _, mdf = paramscan(
 			showprogress = true
 	)
 
-CSV.write("../data/analysis_3_2_and_3.csv", mdf)
-
-
+CSV.write("../data/analysis_3_1_test.csv", mdf)

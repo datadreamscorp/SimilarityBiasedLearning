@@ -21,10 +21,10 @@
 	#total_ticks = 10000
 
 	parameters = Dict( #ALTER THIS DICTIONARY TO DEFINE PARAMETER DISTRIBUTIONS
-	    :N => [100, 1000],
+	    :N => [50, 200],
 		:mu_p => [0.0, 0.01],
         :strategies => [[1]],
-		:n => [1, 5, 15, 20],
+		:n => [1, 5, 15],
         :theta => [0.0],
         :f => collect(0.5:0.1:1.0),
         :ID_corr => collect(0.0:0.1:1.0)
