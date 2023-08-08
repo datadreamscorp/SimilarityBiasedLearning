@@ -56,4 +56,4 @@ _, mdf = paramscan(
 			showprogress = true
 	)
 
-CSV.write("../data/analysis_3_2.csv", mdf)
+CSV.write("../data/analysis_3_2_200agentsA.csv", mdf)

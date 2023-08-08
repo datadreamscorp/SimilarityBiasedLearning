@@ -18,6 +18,7 @@ using StatsBase, Random, Distributions, Agents
 	p_rep::Float64
 end
 
+
 Base.@kwdef mutable struct Parameters
 	N::Int64
 	N_total::Int64
@@ -82,6 +83,7 @@ Base.@kwdef mutable struct Parameters
 	seed::Int64
 end
 
+
 #
 function initialize_similarity_learning(;
 	N = 100,
@@ -133,6 +135,7 @@ function initialize_similarity_learning(;
 		error(raw"Invalid learning strategy pool.")
 	end
 
+	
 	properties = Parameters(
 		N,
 		N,
@@ -196,6 +199,72 @@ function initialize_similarity_learning(;
 		true_random,
 		seed
 	)
+	
+	#=
+	properties = Dict(
+		:N => N,
+		:N_total => N,
+		:f => f,
+		:ID_corr => ID_corr,
+		:H0 => H0,
+		:theta => theta,
+		:H1 => ( cosd(theta), sind(theta) ),
+		:n => n,
+		:mu_ID => mu_ID,
+		:mu_l => mu_l,
+		:sigma_l => sigma_l,
+		:mu_p => mu_p,
+		:sigma_p => sigma_p,
+		:mu_r => mu_r,
+		:sigma_r => sigma_r,
+		:S => S,
+		:prop_parochial => prop_parochial,
+		:strat_pool => strat_pool,
+		:init_soc => init_soc,
+		#data
+		:mean_payoff => Vector{Float64}(),
+		:mean_payoff_g0 => Vector{Float64}(),
+		:mean_payoff_g1 => Vector{Float64}(),
+		:mean_social => Vector{Float64}(),
+		:mean_social_g0 => Vector{Float64}(),
+		:mean_social_g1 => Vector{Float64}(),
+		:mean_parochial => Vector{Float64}(),
+		:mean_parochial_g0 => Vector{Float64}(),
+		:mean_parochial_g1 => Vector{Float64}(),
+		:prop_unbiased => Vector{Float64}(),
+		:prop_unbiased_g1 => Vector{Float64}(),
+		:prop_unbiased_g0 => Vector{Float64}(),
+		:prop_conformist => Vector{Float64}(),
+		:prop_conformist_g1 => Vector{Float64}(),
+		:prop_conformist_g0 => Vector{Float64}(),
+		:prop_payoff => Vector{Float64}(),
+		:prop_payoff_g1 => Vector{Float64}(),
+		:prop_payoff_g0 => Vector{Float64}(),
+		:mean_payoff_final => 0.0,
+		:mean_payoff_g0_final => 0.0,
+		:mean_payoff_g1_final => 0.0,
+		:mean_social_final => 0.0,
+		:mean_social_g0_final => 0.0,
+		:mean_social_g1_final => 0.0,
+		:mean_parochial_final => 0.0,
+		:mean_parochial_g0_final => 0.0,
+		:mean_parochial_g1_final => 0.0,
+		:prop_unbiased_final => 0.0,
+		:prop_unbiased_g1_final => 0.0,
+		:prop_unbiased_g0_final => 0.0,
+		:prop_conformist_final => 0.0,
+		:prop_conformist_g1_final => 0.0,
+		:prop_conformist_g0_final => 0.0,
+		:prop_payoff_final => 0.0,
+		:prop_payoff_g1_final => 0.0,
+		:prop_payoff_g0_final => 0.0,
+		:tick => 1,
+		:total_ticks => total_ticks,
+		:rep => rep,
+		:true_random => true_random,
+		:seed => seed,
+	)
+	=#
 
 	model = ABM( 
 		Learner, 
@@ -212,13 +281,13 @@ function initialize_similarity_learning(;
 		
 		if group == 0
 			HI = ( 
-				model.H0[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-				model.H0[2] + rand( model.rng, Normal(0, model.sigma_l) )
+				@inbounds model.H0[1] + rand( model.rng, Normal(0, model.sigma_l) ),
+				@inbounds model.H0[2] + rand( model.rng, Normal(0, model.sigma_l) )
 			)
 		else
 			HI = ( 
-				model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-				model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
+				@inbounds model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
+				@inbounds model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
 			)
 		end
 		
@@ -247,7 +316,7 @@ end
 
 
 function squared_distance(X::Tuple{Float64, Float64}, H::Tuple{Float64, Float64})
-	return (X[1] - H[1])^2 + (X[2] - H[2])^2
+	return @inbounds (X[1] - H[1])^2 + (X[2] - H[2])^2
 end
 
 #
@@ -289,51 +358,52 @@ function reproduction!(model)
 
 	total_agents = model.N_total
 	
-	for i in (total_agents + 1):(total_agents + g0_n)
-		HI = ( 
-				model.H0[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-				model.H0[2] + rand( model.rng, Normal(0, model.sigma_l) )
+	if g0_n > 0
+		for i in (total_agents + 1):(total_agents + g0_n)
+			HI = ( 
+					@inbounds model.H0[1] + rand( model.rng, Normal(0, model.sigma_l) ),
+					@inbounds model.H0[2] + rand( model.rng, Normal(0, model.sigma_l) )
+				)
+
+			parent = sample(model.rng, group0, g0_w)
+			parentID = parent.groupID
+			
+			inh_parochialism = rand(model.rng) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(model.rng, Normal(0, model.sigma_p)), 0, 1 )
+
+			inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
+
+			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strat_pool)
+			
+			child = Learner(
+				i,
+				parent.group, 
+				rand(model.rng) < 1 - model.mu_ID ? parentID : abs(parentID - 1),
+				HI,
+				(0.0, 0.0),
+				inh_parochialism,
+				inh_soclearn,
+				inh_strategy,
+				0.0,
+				HI,
+				false,
+				[],
+				0.0,
+			)
+			add_agent!(
+				child,
+				model
 			)
 
-		parent = sample(model.rng, group0, g0_w)
-		parentID = parent.groupID
-		
-		inh_parochialism = rand(model.rng) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(model.rng, Normal(0, model.sigma_p)), 0, 1 )
-
-		inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
-
-		inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strat_pool)
-		
-		child = Learner(
-			i,
-			parent.group, 
-			rand(model.rng) < 1 - model.mu_ID ? parentID : abs(parentID - 1),
-			HI,
-			(0.0, 0.0),
-			inh_parochialism,
-			inh_soclearn,
-			inh_strategy,
-			0.0,
-			HI,
-			false,
-			[],
-			0.0,
-		)
-		add_agent!(
-			child,
-			model
-		)
-
-		model.N_total += 1
+			model.N_total += 1
+		end
 	end
-
 	#total_agents = model.N_total
 	
 	if g1_n > 0
 		for i in (total_agents + g0_n + 1):(total_agents + g0_n + g1_n)
 			HI = ( 
-					model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-					model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
+					@inbounds model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
+					@inbounds model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
 				)
 
 			parent = sample(model.rng, group1, g1_w)
@@ -368,6 +438,7 @@ function reproduction!(model)
 			model.N_total += 1
 		end
 	end
+
 end
 
 #
@@ -395,9 +466,9 @@ function model_choice!(learner, olds, model)
 		#pot_models = filter( m -> m.old & (m.group == learner.group), agents )
 	#end
 
-	old_sample = olds
+	#old_sample = olds
 	
-	pot_models = sample(model.rng, old_sample, model.n, replace=false)
+	pot_models = sample(model.rng, olds, model.n, replace=false)
 	for m in pot_models
 		if m.group == learner.group
 			push!(learner.models, m)
