@@ -2,9 +2,12 @@
 #ANALYSIS 3.2 and 3.3
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
-@everywhere Pkg.instantiate()
+#@everywhere Pkg.instantiate()
 
-@everywhere import SimilarityBiasedLearning as sl
+#@everywhere import SimilarityBiasedLearning as sl
+
+@everywhere include("../src/similarity_bias_ABM.jl")
+
 @everywhere using CSV, Distributed
 @everywhere using Agents, Random, Distributions, Statistics, StatsBase
 
