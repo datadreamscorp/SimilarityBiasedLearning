@@ -2,9 +2,12 @@
 #ANALYSIS 3.2
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
-@everywhere Pkg.instantiate()
+#@everywhere Pkg.instantiate()
 
-@everywhere import SimilarityBiasedLearning as sl
+#@everywhere import SimilarityBiasedLearning as sl
+
+@everywhere include("../src/similarity_bias_ABM.jl")
+
 @everywhere using CSV, Distributed
 @everywhere using Agents, Random, Distributions, Statistics, StatsBase
 
@@ -46,10 +49,10 @@ end
 
 #USE THIS LINE AFTER DEFINITIONS TO BEGIN PARAMETER SCANNING
 _, mdf = paramscan(
-            parameters, sl.initialize_similarity_learning;
+            parameters, initialize_similarity_learning;
             mdata=mdata,
             agent_step! = dummystep,
-        	model_step! = sl.model_step!,
+        	model_step! = model_step!,
             n = total_ticks,
 			parallel=true,
 			when_model = [total_ticks],

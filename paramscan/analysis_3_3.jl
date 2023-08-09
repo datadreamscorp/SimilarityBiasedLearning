@@ -1,5 +1,5 @@
 #############
-#ANALYSIS 3.2 and 3.3
+#ANALYSIS 3.3
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
 #@everywhere Pkg.instantiate()
@@ -49,10 +49,10 @@ end
 
 #USE THIS LINE AFTER DEFINITIONS TO BEGIN PARAMETER SCANNING
 _, mdf = paramscan(
-            parameters, sl.initialize_similarity_learning;
+            parameters, initialize_similarity_learning;
             mdata=mdata,
             agent_step! = dummystep,
-        	model_step! = sl.model_step!,
+        	model_step! = model_step!,
             n = total_ticks,
 			parallel=true,
 			when_model = [total_ticks],
