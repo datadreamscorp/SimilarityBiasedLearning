@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.19
+# v0.19.27
 
 using Markdown
 using InteractiveUtils
@@ -8,9 +8,11 @@ using InteractiveUtils
 begin
 	using Pkg
 	Pkg.activate("..")
+	#Pkg.instantiate()
 	using Revise
 	using StatsBase, Random, Distributions, Agents, Plots
-	import SimilarityBiasedLearning as sl
+	#import SimilarityBiasedLearning as sl
+	include("../src/similarity_bias_ABM.jl")
 end
 
 # ╔═╡ b2594d1b-dabc-4928-8de9-bd1de34b9521
@@ -20,7 +22,7 @@ md"
 "
 
 # ╔═╡ 9dee2817-576a-4400-815f-e96d7769f958
-model = sl.initialize_similarity_learning(
+model = initialize_similarity_learning(
 	N=200,
 	theta=180.0, 
 	f=0.5, 
@@ -38,7 +40,7 @@ model = sl.initialize_similarity_learning(
 
 # ╔═╡ 579f2992-899b-4103-8579-4fa3a1c205be
 @time for t in 1:3000
-	sl.model_step!(model)
+	model_step!(model)
 end
 
 # ╔═╡ d136203d-5981-45e3-ab03-4152a032d6e3
@@ -46,7 +48,7 @@ begin
 	model.H1 = (1.0, 0.0)
 	#model.sigma_l = 0.01
 	for t in 1:3000
-		sl.model_step!(model)
+		model_step!(model)
 	end
 end
 
@@ -135,7 +137,7 @@ begin
 end
 
 # ╔═╡ Cell order:
-# ╠═d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
+# ╟─d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
 # ╟─b2594d1b-dabc-4928-8de9-bd1de34b9521
 # ╠═9dee2817-576a-4400-815f-e96d7769f958
 # ╠═579f2992-899b-4103-8579-4fa3a1c205be
