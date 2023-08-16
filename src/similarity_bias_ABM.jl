@@ -567,7 +567,7 @@ function model_step!(model)
 			)
 
 		push!( 
-			model.prop_unbiased_g0, 
+			model.prop_unbiased_g1, 
 			length(g1) > 0 ? length(filter(a -> a.learning_strategy == 1, g1)) / length(g1) : 0
 			)
 		
