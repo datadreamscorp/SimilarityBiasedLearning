@@ -33,7 +33,7 @@ model = initialize_similarity_learning(
 	mu_p=0.05,
 	sigma_p=0.05,
 	S=0.05,
-	strategies="UL&CB",
+	strategies="UL&PB",
 	mu_l=0.01,
 	true_random=true
 )
