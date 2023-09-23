@@ -33,13 +33,14 @@ model = initialize_similarity_learning(
 	mu_p=0.05,
 	sigma_p=0.05,
 	S=0.05,
-	strategies="UL&PB",
+	strategies="UL",
 	mu_l=0.01,
+	ID_corr=0.0,
 	true_random=true
 )
 
 # ╔═╡ 579f2992-899b-4103-8579-4fa3a1c205be
-@time for t in 1:3000
+for t in 1:3000
 	model_step!(model)
 end
 

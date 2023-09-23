@@ -377,7 +377,7 @@ function reproduction!(model)
 			child = Learner(
 				i,
 				parent.group, 
-				rand(model.rng) < 1 - model.mu_ID ? parentID : abs(parentID - 1),
+				rand(model.rng) < 1 - model.mu_ID ? parentID : ( rand(model.rng) < model.f ? 0 : 1 ),
 				HI,
 				(0.0, 0.0),
 				inh_parochialism,
@@ -470,7 +470,7 @@ function model_choice!(learner, olds, model)
 	
 	pot_models = sample(model.rng, olds, model.n, replace=false)
 	for m in pot_models
-		if m.group == learner.group
+		if m.groupID == learner.groupID
 			push!(learner.models, m)
 		elseif rand(model.rng) < 1 - learner.parochial
 			push!(learner.models, m)
