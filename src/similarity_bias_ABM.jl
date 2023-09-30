@@ -377,7 +377,8 @@ function reproduction!(model)
 			child = Learner(
 				i,
 				parent.group, 
-				rand(model.rng) < 1 - model.mu_ID ? parentID : ( rand(model.rng) < model.f ? 0 : 1 ),
+				#rand(model.rng) < 1 - model.mu_ID ? parentID : ( rand(model.rng) < model.f ? 0 : 1 ),
+				rand(model.rng) < model.ID_corr ? parentID : ( rand(model.rng) < model.f ? 0 : 1 ),
 				HI,
 				(0.0, 0.0),
 				inh_parochialism,
