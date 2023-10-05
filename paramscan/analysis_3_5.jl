@@ -11,7 +11,7 @@
 @everywhere using CSV, Distributed
 @everywhere using Agents, Random, Distributions, Statistics, StatsBase
 
-@everywhere total_ticks = 3000
+@everywhere total_ticks = 10000
 
 @everywhere begin 
 

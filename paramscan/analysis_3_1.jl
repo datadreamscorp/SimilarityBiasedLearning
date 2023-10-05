@@ -11,7 +11,7 @@
 @everywhere using CSV, Distributed
 @everywhere using Agents, Random, Distributions, Statistics, StatsBase
 
-@everywhere total_ticks = 3000
+@everywhere total_ticks = 10000
 
 @everywhere begin #INCLUDE MODEL CODE AND NECESSARY LIBRARIES
 
@@ -49,10 +49,10 @@ end
 
 #USE THIS LINE AFTER DEFINITIONS TO BEGIN PARAMETER SCANNING
 _, mdf = paramscan(
-            parameters, sl.initialize_similarity_learning;
+            parameters, initialize_similarity_learning;
             mdata=mdata,
             agent_step! = dummystep,
-        	model_step! = sl.model_step!,
+        	model_step! = model_step!,
             n = total_ticks,
 			parallel=true,
 			when_model = [total_ticks],
