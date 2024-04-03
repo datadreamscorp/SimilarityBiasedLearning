@@ -219,7 +219,7 @@ savefig(complot, "composite_plot.pdf")
 
 # ╔═╡ Cell order:
 # ╟─d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
-# ╟─5249f71a-df66-4662-aa2e-e93c4e91e454
+# ╠═5249f71a-df66-4662-aa2e-e93c4e91e454
 # ╟─b2594d1b-dabc-4928-8de9-bd1de34b9521
 # ╠═ff07f800-e569-4a3f-89bf-218b1f081820
 # ╠═9dee2817-576a-4400-815f-e96d7769f958

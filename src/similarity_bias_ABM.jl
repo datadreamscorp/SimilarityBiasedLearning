@@ -114,7 +114,7 @@ function initialize_similarity_learning(;
 	total_ticks = 3000,
 	rep = 1,
 )
-	rng = true_random ? RandomDevice() : MersenneTwister(seed)
+	rng = true_random ? RandomDevice() : Xoshiro(seed)
 	
 	if strategies == "UL"
 		strat_pool = [1]
@@ -211,72 +211,6 @@ function initialize_similarity_learning(;
 		true_random,
 		seed
 	)
-	
-	#=
-	properties = Dict(
-		:N => N,
-		:N_total => N,
-		:f => f,
-		:ID_corr => ID_corr,
-		:H0 => H0,
-		:theta => theta,
-		:H1 => ( cosd(theta), sind(theta) ),
-		:n => n,
-		:mu_ID => mu_ID,
-		:mu_l => mu_l,
-		:sigma_l => sigma_l,
-		:mu_p => mu_p,
-		:sigma_p => sigma_p,
-		:mu_r => mu_r,
-		:sigma_r => sigma_r,
-		:S => S,
-		:prop_parochial => prop_parochial,
-		:strat_pool => strat_pool,
-		:init_soc => init_soc,
-		#data
-		:mean_payoff => Vector{Float64}(),
-		:mean_payoff_g0 => Vector{Float64}(),
-		:mean_payoff_g1 => Vector{Float64}(),
-		:mean_social => Vector{Float64}(),
-		:mean_social_g0 => Vector{Float64}(),
-		:mean_social_g1 => Vector{Float64}(),
-		:mean_parochial => Vector{Float64}(),
-		:mean_parochial_g0 => Vector{Float64}(),
-		:mean_parochial_g1 => Vector{Float64}(),
-		:prop_unbiased => Vector{Float64}(),
-		:prop_unbiased_g1 => Vector{Float64}(),
-		:prop_unbiased_g0 => Vector{Float64}(),
-		:prop_conformist => Vector{Float64}(),
-		:prop_conformist_g1 => Vector{Float64}(),
-		:prop_conformist_g0 => Vector{Float64}(),
-		:prop_payoff => Vector{Float64}(),
-		:prop_payoff_g1 => Vector{Float64}(),
-		:prop_payoff_g0 => Vector{Float64}(),
-		:mean_payoff_final => 0.0,
-		:mean_payoff_g0_final => 0.0,
-		:mean_payoff_g1_final => 0.0,
-		:mean_social_final => 0.0,
-		:mean_social_g0_final => 0.0,
-		:mean_social_g1_final => 0.0,
-		:mean_parochial_final => 0.0,
-		:mean_parochial_g0_final => 0.0,
-		:mean_parochial_g1_final => 0.0,
-		:prop_unbiased_final => 0.0,
-		:prop_unbiased_g1_final => 0.0,
-		:prop_unbiased_g0_final => 0.0,
-		:prop_conformist_final => 0.0,
-		:prop_conformist_g1_final => 0.0,
-		:prop_conformist_g0_final => 0.0,
-		:prop_payoff_final => 0.0,
-		:prop_payoff_g1_final => 0.0,
-		:prop_payoff_g0_final => 0.0,
-		:tick => 1,
-		:total_ticks => total_ticks,
-		:rep => rep,
-		:true_random => true_random,
-		:seed => seed,
-	)
-	=#
 
 	model = ABM( 
 		Learner, 
@@ -410,7 +344,6 @@ function reproduction!(model)
 			model.N_total += 1
 		end
 	end
-	#total_agents = model.N_total
 	
 	if g1_n > 0
 		for i in (total_agents + g0_n + 1):(total_agents + g0_n + g1_n)
@@ -473,14 +406,6 @@ end
 
 #
 function model_choice!(learner, olds, model)
-
-	#if rand(model.rng) < a.parochial
-		#pot_models = filter( m -> m.old & (m.group == learner.group), agents )
-	#else
-		#pot_models = filter( m -> m.old & (m.group == learner.group), agents )
-	#end
-
-	#old_sample = olds
 	
 	pot_models = sample(model.rng, olds, model.n, replace=false)
 	for m in pot_models
