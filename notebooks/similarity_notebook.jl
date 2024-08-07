@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.40
+# v0.19.42
 
 using Markdown
 using InteractiveUtils
@@ -9,7 +9,6 @@ begin
 	using Pkg
 	Pkg.activate("..")
 	#Pkg.instantiate()
-	using Revise
 	using StatsBase, Random, Distributions, Agents, Plots
 	#import SimilarityBiasedLearning as sl
 	include("../src/similarity_bias_ABM.jl")
@@ -109,28 +108,33 @@ md"
 #### Paul E. Smaldino & Alejandro Pérez Velilla
 "
 
+# ╔═╡ c7330a46-b50b-4a17-9a0c-1e9a8aa04faa
+begin
+	#SET PARAMETERS HERE
+	N=200; theta=180.0; f=0.5; sigma_l=0.3; n=5; mu_r=0.05; sigma_r=0.05;
+	mu_p=0.05; sigma_p=0.05; S=0.05; strategies="UL&PB"; mu_l=0.05; #ID_corr=0.75
+	true_random=false; total_ticks=10000;
+end
+
 # ╔═╡ ff07f800-e569-4a3f-89bf-218b1f081820
 begin
 	#evolution of payoff bias
 	model = initialize_similarity_learning(
-		N=200,
-		theta=180.0, 
-		f=0.5, 
-		sigma_l=0.3, 
-		n=5,
-		mu_r=0.05, 
-		sigma_r=0.05, 
-		mu_p=0.05,
-		sigma_p=0.05,
-		S=0.05,
-		#strategies="UL",
-		#strategies="UL&CB",
-		strategies="UL&PB",
-		#strategies="ALLTHREE",
-		mu_l=0.05,
+		N=N,
+		theta=theta, 
+		f=f, 
+		sigma_l=sigma_l, 
+		n=n,
+		mu_r=mu_r, 
+		sigma_r=sigma_r, 
+		mu_p=mu_p,
+		sigma_p=sigma_p,
+		S=S,
+		strategies=strategies,
+		mu_l=mu_l,
 		ID_corr=0.75,
-		true_random=false,
-		total_ticks=10000,
+		true_random=true_random,
+		total_ticks=total_ticks,
 		seed=153456
 	)
 	for t in 1:model.total_ticks
@@ -142,25 +146,21 @@ end
 begin
 	#payoff oscillation
 	model02 = initialize_similarity_learning(
-		N=200,
-		theta=180.0, 
-		f=0.5, 
-		sigma_l=0.3, 
-		n=5,
-		mu_r=0.05, 
-		sigma_r=0.05, 
-		mu_p=0.05,
-		sigma_p=0.05,
-		S=0.05,
-		#strategies="UL",
-		#strategies="UL&CB",
-		strategies="UL&PB",
-		#strategies="ALLTHREE",
-		mu_l=0.05,
+		N=N,
+		theta=theta, 
+		f=f, 
+		sigma_l=sigma_l, 
+		n=n,
+		mu_r=mu_r, 
+		sigma_r=sigma_r, 
+		mu_p=mu_p,
+		sigma_p=sigma_p,
+		S=S,
+		strategies=strategies,
+		mu_l=mu_l,
 		ID_corr=0.75,
-		true_random=false,
-		total_ticks=10000,
-		#seed=153456, #evolution of payoff bias
+		true_random=true_random,
+		total_ticks=total_ticks,
 		seed=1234976 
 	)
 	for t in 1:model02.total_ticks
@@ -172,24 +172,21 @@ end
 begin
 	#payoff divergence at R = 0.5
 	model03 = initialize_similarity_learning(
-		N=200,
-		theta=180.0, 
-		f=0.5, 
-		sigma_l=0.3, 
-		n=5,
-		mu_r=0.05, 
-		sigma_r=0.05, 
-		mu_p=0.05,
-		sigma_p=0.05,
-		S=0.05,
-		#strategies="UL",
-		#strategies="UL&CB",
-		strategies="UL&PB",
-		#strategies="ALLTHREE",
-		mu_l=0.05,
+		N=N,
+		theta=theta, 
+		f=f, 
+		sigma_l=sigma_l, 
+		n=n,
+		mu_r=mu_r, 
+		sigma_r=sigma_r, 
+		mu_p=mu_p,
+		sigma_p=sigma_p,
+		S=S,
+		strategies=strategies,
+		mu_l=mu_l,
 		ID_corr=0.5,
-		true_random=false,
-		total_ticks=10000,
+		true_random=true_random,
+		total_ticks=total_ticks,
 		seed=123497 
 	)
 	for t in 1:model03.total_ticks
@@ -221,6 +218,7 @@ savefig(complot, "composite_plot.pdf")
 # ╟─d22575c8-8ac4-4667-b9a9-cb05b44ec0e2
 # ╠═5249f71a-df66-4662-aa2e-e93c4e91e454
 # ╟─b2594d1b-dabc-4928-8de9-bd1de34b9521
+# ╠═c7330a46-b50b-4a17-9a0c-1e9a8aa04faa
 # ╠═ff07f800-e569-4a3f-89bf-218b1f081820
 # ╠═9dee2817-576a-4400-815f-e96d7769f958
 # ╠═50558bb7-7844-49ab-be1c-0f91e951a582
