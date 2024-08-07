@@ -5,7 +5,7 @@ Code supplement for the "The Evolution of Similarity-Biased Social Learning" by 
 
 The repository contains a Julia project that must be [activated and instantiated](https://pkgdocs.julialang.org/v1/environments/) before use.
 
-The ``notebooks`` repository contains a [Pluto](https://plutojl.org/) notebook that can be used to perform and plot individual model runs for exploratory purposes. The function ``plot_stats()`` is defined within the notebook and is a quick way to visualize model runs. The current parameter configuration replicates Supplemental Figure 3 in the Appendix.
+The ``notebooks`` repository contains a [Pluto](https://plutojl.org/) notebook that can be used to perform and plot individual model runs for exploratory purposes. The function ``plot_stats()`` is defined within the notebook and is a quick way to visualize model runs. The current parameter configuration replicates Supplemental Figure 3 in the Appendix, and this figure can be replicated by either running the notebook file as a Julia script from the terminal, or directly within the notebook by enabling the cells in Pluto. We recommend using the first method, and keeping the Pluto notebook interface as a quick and easy way to test individual runs.
 
 The ``paramscan`` directory contains the scripts used to run the parameter sweeps analyzed for the paper (see below), while the ``src`` directory contains the script ``similarity_bias_ABM.jl`` which contains the model code and that is called by the aforementioned parameter-scanning scripts.
 
