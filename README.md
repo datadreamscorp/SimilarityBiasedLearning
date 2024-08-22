@@ -9,7 +9,7 @@ The ``notebooks`` repository contains a [Pluto](https://plutojl.org/) notebook t
 
 The ``paramscan`` directory contains the scripts used to run the parameter sweeps analyzed for the paper (see below), while the ``src`` directory contains the script ``similarity_bias_ABM.jl`` which contains the model code and that is called by the aforementioned parameter-scanning scripts.
 
-The ``data`` directory is the designated output location for parameter sweeps. It is empty due to the size of the resulting files, which are hosted at OSF (see below). This directory will hold the output of any replications and alternative parameter sweeps performed using i.e. the scripts in ``paramscan``.
+The ``data`` directory is the designated output location for parameter sweeps. It is empty due to the size of the resulting files, which are hosted at OSF (see below). This directory will hold the output of any replications and alternative parameter sweeps performed using i.e. the scripts in ``paramscan``. This directory also holds the ``parochialAnalysis.R`` script, which uses the datasets in order to construct the plots in the main text. Simply drop the datasets in the data directory, make sure you have installed the packages required by the script, and run it in order to output the plots in the paper.
 
 ## Description of the data and file structure
 
