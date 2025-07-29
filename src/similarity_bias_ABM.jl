@@ -1,7 +1,7 @@
 using StatsBase, Random, Distributions, Agents
 
 #
-@agent Learner NoSpaceAgent begin
+@agent struct Learner(NoSpaceAgent)
 	#Heritable characteristics
 	group::Int64
 	groupID::Int64
@@ -216,24 +216,25 @@ function initialize_similarity_learning(;
 		Learner, 
 		nothing;
 		properties = properties,
-		rng
+		model_step! = model_step!,
+		rng = rng
 	)
 	
 	for a in 1:N
 		
-		group = rand(model.rng) < model.f ? 0 : 1
+		group = rand(abmrng(model)) < model.f ? 0 : 1
 		
-		groupID = rand(model.rng) < model.ID_corr ? group : ( rand(model.rng) < model.f ? 0 : 1 )
+		groupID = rand(abmrng(model)) < model.ID_corr ? group : ( rand(abmrng(model)) < model.f ? 0 : 1 )
 		
 		if group == 0
 			HI = ( 
-				@inbounds model.H0[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-				@inbounds model.H0[2] + rand( model.rng, Normal(0, model.sigma_l) )
+				@inbounds model.H0[1] + rand( abmrng(model), Normal(0, model.sigma_l) ),
+				@inbounds model.H0[2] + rand( abmrng(model), Normal(0, model.sigma_l) )
 			)
 		else
 			HI = ( 
-				@inbounds model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-				@inbounds model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
+				@inbounds model.H1[1] + rand( abmrng(model), Normal(0, model.sigma_l) ),
+				@inbounds model.H1[2] + rand( abmrng(model), Normal(0, model.sigma_l) )
 			)
 		end
 		
@@ -243,9 +244,9 @@ function initialize_similarity_learning(;
 			groupID,
 			HI,
 			(0.0, 0.0),
-			rand(model.rng) < model.prop_parochial ? 1.0 : 0.0,
+			rand(abmrng(model)) < model.prop_parochial ? 1.0 : 0.0,
 			init_soc,
-			sample(model.rng, model.strat_pool),
+			sample(abmrng(model), model.strat_pool),
 			0.0,
 			HI,
 			true,
@@ -275,7 +276,7 @@ end
 #
 function reproduction!(model)
 	
-	agents = shuffle(model.rng, allagents(model)|>collect)
+	agents = shuffle(abmrng(model), allagents(model)|>collect)
 	group0 = filter(a -> a.group == 0, agents)
 	group1 = setdiff( agents, group0 )
 
@@ -307,24 +308,24 @@ function reproduction!(model)
 	if g0_n > 0
 		for i in (total_agents + 1):(total_agents + g0_n)
 			HI = ( 
-					@inbounds model.H0[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-					@inbounds model.H0[2] + rand( model.rng, Normal(0, model.sigma_l) )
+					@inbounds model.H0[1] + rand( abmrng(model), Normal(0, model.sigma_l) ),
+					@inbounds model.H0[2] + rand( abmrng(model), Normal(0, model.sigma_l) )
 				)
 
-			parent = sample(model.rng, group0, g0_w)
+			parent = sample(abmrng(model), group0, g0_w)
 			parentID = parent.groupID
 			
-			inh_parochialism = rand(model.rng) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(model.rng, Normal(0, model.sigma_p)), 0, 1 )
+			inh_parochialism = rand(abmrng(model)) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(abmrng(model), Normal(0, model.sigma_p)), 0, 1 )
 
-			inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
+			inh_soclearn = rand(abmrng(model)) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(abmrng(model), Normal(0, model.sigma_r)), 0, 1 )
 
-			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strat_pool)
+			inh_strategy = rand(abmrng(model)) < 1 - model.mu_l ? parent.learning_strategy : sample(abmrng(model), model.strat_pool)
 			
 			child = Learner(
 				i,
 				parent.group, 
-				#rand(model.rng) < 1 - model.mu_ID ? parentID : ( rand(model.rng) < model.f ? 0 : 1 ),
-				rand(model.rng) < model.ID_corr ? parent.group : ( rand(model.rng) < model.f ? 0 : 1 ),
+				#rand(abmrng(model)) < 1 - model.mu_ID ? parentID : ( rand(abmrng(model)) < model.f ? 0 : 1 ),
+				rand(abmrng(model)) < model.ID_corr ? parent.group : ( rand(abmrng(model)) < model.f ? 0 : 1 ),
 				HI,
 				(0.0, 0.0),
 				inh_parochialism,
@@ -348,24 +349,24 @@ function reproduction!(model)
 	if g1_n > 0
 		for i in (total_agents + g0_n + 1):(total_agents + g0_n + g1_n)
 			HI = ( 
-					@inbounds model.H1[1] + rand( model.rng, Normal(0, model.sigma_l) ),
-					@inbounds model.H1[2] + rand( model.rng, Normal(0, model.sigma_l) )
+					@inbounds model.H1[1] + rand( abmrng(model), Normal(0, model.sigma_l) ),
+					@inbounds model.H1[2] + rand( abmrng(model), Normal(0, model.sigma_l) )
 				)
 
-			parent = sample(model.rng, group1, g1_w)
+			parent = sample(abmrng(model), group1, g1_w)
 			parentID = parent.groupID
 			
-			inh_parochialism = rand(model.rng) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(model.rng, Normal(0, model.sigma_p)), 0, 1 )
+			inh_parochialism = rand(abmrng(model)) < 1 - model.mu_p ? parent.parochial : clamp( parent.parochial + rand(abmrng(model), Normal(0, model.sigma_p)), 0, 1 )
 
-			inh_soclearn = rand(model.rng) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(model.rng, Normal(0, model.sigma_r)), 0, 1 )
+			inh_soclearn = rand(abmrng(model)) < 1 - model.mu_r ? parent.soc : clamp( parent.soc + rand(abmrng(model), Normal(0, model.sigma_r)), 0, 1 )
 
-			inh_strategy = rand(model.rng) < 1 - model.mu_l ? parent.learning_strategy : sample(model.rng, model.strat_pool)
+			inh_strategy = rand(abmrng(model)) < 1 - model.mu_l ? parent.learning_strategy : sample(abmrng(model), model.strat_pool)
 			
 			child = Learner(
 				i,
 				parent.group, 
-				#rand(model.rng) < 1 - model.mu_ID ? parentID : abs(parentID - 1),
-				rand(model.rng) < model.ID_corr ? parent.group : ( rand(model.rng) < model.f ? 0 : 1 ),
+				#rand(abmrng(model)) < 1 - model.mu_ID ? parentID : abs(parentID - 1),
+				rand(abmrng(model)) < model.ID_corr ? parent.group : ( rand(abmrng(model)) < model.f ? 0 : 1 ),
 				HI,
 				(0.0, 0.0),
 				inh_parochialism,
@@ -391,7 +392,7 @@ end
 #
 function learning_stage!(model)
 
-	agents = shuffle(model.rng, allagents(model)|>collect)
+	agents = shuffle(abmrng(model), allagents(model)|>collect)
 	new_generation = filter( a -> !(a.old), agents )
 	olds = setdiff(agents, new_generation)
 		
@@ -407,11 +408,11 @@ end
 #
 function model_choice!(learner, olds, model)
 	
-	pot_models = sample(model.rng, olds, model.n, replace=false)
+	pot_models = sample(abmrng(model), olds, model.n, replace=false)
 	for m in pot_models
 		if m.groupID == learner.groupID
 			push!(learner.models, m)
-		elseif rand(model.rng) < 1 - learner.parochial
+		elseif rand(abmrng(model)) < 1 - learner.parochial
 			push!(learner.models, m)
 		end
 	end
@@ -425,7 +426,7 @@ function learning!(learner, model)
 	
 	if learner.learning_strategy == 1 #unbiased
 
-		rando = rand(model.rng, learner.models)
+		rando = rand(abmrng(model), learner.models)
 		learner.social_coor = rando.trait
 		
 	elseif learner.learning_strategy == 2 #conformity
@@ -439,7 +440,7 @@ function learning!(learner, model)
 
 		max_idx = findmax(m -> m.payoff, learner.models)[2]
 		mods = learner.models
-		#winner = sample(model.rng, mods[max_idx])
+		#winner = sample(abmrng(model), mods[max_idx])
 		winner = mods[max_idx]
 		learner.social_coor = winner.trait
 		
@@ -453,12 +454,12 @@ end
 
 #
 function pass_the_torch!(model)
-	agents = shuffle(model.rng, allagents(model)|>collect)
+	agents = shuffle(abmrng(model), allagents(model)|>collect)
 	olds = filter( a -> a.old, agents )
 	news = setdiff(agents, olds)
 
 	for old in olds
-		kill_agent!(old, model)
+		remove_agent!(old, model)
 	end
 
 	for new in news
