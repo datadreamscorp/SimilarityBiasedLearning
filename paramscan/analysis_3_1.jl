@@ -1,17 +1,15 @@
 #############
 #ANALYSIS 3.1
-@everywhere using Pkg
-@everywhere Pkg.activate("..")
-#@everywhere Pkg.instantiate()
-
-#@everywhere import SimilarityBiasedLearning as sl
+using Pkg
+Pkg.activate("..")
+using Distributed
 
 @everywhere include("../src/similarity_bias_ABM.jl")
 
-@everywhere using CSV, Distributed
-@everywhere using Agents, Random, Distributions, Statistics, StatsBase
+#@everywhere using CSV, Distributed
+@everywhere using CSV, Agents, Random, Distributions, Statistics, StatsBase
 
-@everywhere total_ticks = 10000
+@everywhere total_ticks = 1
 
 @everywhere begin #INCLUDE MODEL CODE AND NECESSARY LIBRARIES
 
@@ -32,7 +30,7 @@
 		:true_random => true,
 		:total_ticks => total_ticks
 	)
-
+	
 	mdata = [
 		:mean_payoff_final,
 		:mean_payoff_g0_final,
@@ -51,8 +49,8 @@ end
 _, mdf = paramscan(
             parameters, initialize_similarity_learning;
             mdata=mdata,
-            agent_step! = dummystep,
-        	model_step! = model_step!,
+            #agent_step! = dummystep,
+        	#model_step! = model_step!,
             n = total_ticks,
 			parallel=true,
 			when_model = [total_ticks],

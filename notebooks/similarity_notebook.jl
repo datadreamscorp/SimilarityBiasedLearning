@@ -12,93 +12,6 @@ begin
 	using StatsBase, Random, Distributions, Agents, Plots
 	import SimilarityBiasedLearning as sl
 	
-	function plot_stats(model; plot_title="", labs=true, labelfontsize=7, legend=true)
-		
-		soclearn_groups = plot(
-			model.mean_social_g0, 
-			label="group 0",
-			xlab="time",
-			ylab="social learning",
-			color="pink",
-			legend=false,
-			title=plot_title,
-			titlelocation=:left
-		)
-		plot!(
-			model.mean_social_g1,
-			label="group 1",
-			color="dark blue",
-			alpha=0.75
-		)
-	
-		parochialism_groups = plot(
-			model.mean_parochial_g0, 
-			label="group 0",
-			xlab="time",
-			ylab="similarity bias",
-			legend=false,
-			color="pink"
-		)
-		plot!(
-			model.mean_parochial_g1,
-			label="group 1",
-			color="dark blue",
-			alpha=0.75
-		)
-	
-		payoff_groups = plot(
-			model.mean_payoff_g0, 
-			label="group 0",
-			xlab="time",
-			ylab="mean payoff",
-			legend= legend ? :topleft : false,
-			color="pink"
-		)
-		plot!(
-			model.mean_payoff_g1,
-			label="group 1",
-			color="dark blue",
-			alpha=0.75
-		)
-	
-	
-		unbiased_plot = plot(
-			model.prop_unbiased_g0,
-			#xlab="time",
-			label="group 0",
-			ylim=(0.0, 1.0),
-			color="pink",
-			legend=false,
-			ylab="prop. unbiased",
-			dpi=300
-		)
-		plot!(
-			model.prop_unbiased_g1,
-			#xlab="time",
-			label="group 1",
-			ylim=(0.0, 1.0),
-			color="dark blue",
-			alpha=0.75
-		)
-	
-		
-		comp_plot = plot(
-			plot(soclearn_groups, parochialism_groups), 
-			unbiased_plot, payoff_groups, 
-			#size=(700,500),
-			layout=(3,1),
-			dpi=300,
-			#plot_title=plot_title,
-			plot_titlefontsize=20,
-			labelfontsize=labelfontsize,
-			tickfontsize=3,
-			legendfontsize=5
-		)
-	
-		return comp_plot
-		
-	end
-	
 md"
 # The evolution of similarity-biased social learning
 #### Paul E. Smaldino & Alejandro Pérez Velilla
@@ -147,7 +60,7 @@ begin
 		sl.model_step!(play_model)
 	end
 
-	plot_stats(play_model)
+	sl.plot_stats(play_model)
 end
   ╠═╡ =#
 
@@ -162,7 +75,7 @@ Enable the following cells in order to replicate the supplemental figure 3.
 #=╠═╡
 begin
 	#evolution of payoff bias
-	model = initialize_similarity_learning(
+	model = sl.initialize_similarity_learning(
 		N=N,
 		theta=theta, 
 		f=f, 
@@ -181,17 +94,11 @@ begin
 		seed=153456
 	)
 	for t in 1:model.total_ticks
-		model_step!(model)
+		sl.model_step!(model)
 	end
-end
-  ╠═╡ =#
 
-# ╔═╡ 9dee2817-576a-4400-815f-e96d7769f958
-# ╠═╡ disabled = true
-#=╠═╡
-begin
 	#payoff oscillation
-	model02 = initialize_similarity_learning(
+	model02 = sl.initialize_similarity_learning(
 		N=N,
 		theta=theta, 
 		f=f, 
@@ -207,20 +114,14 @@ begin
 		ID_corr=0.75,
 		true_random=true_random,
 		total_ticks=total_ticks,
-		seed=1234976 
+		seed=123763457
 	)
 	for t in 1:model02.total_ticks
-		model_step!(model02)
+		sl.model_step!(model02)
 	end
-end
-  ╠═╡ =#
 
-# ╔═╡ 50558bb7-7844-49ab-be1c-0f91e951a582
-# ╠═╡ disabled = true
-#=╠═╡
-begin
 	#payoff divergence at R = 0.5
-	model03 = initialize_similarity_learning(
+	model03 = sl.initialize_similarity_learning(
 		N=N,
 		theta=theta, 
 		f=f, 
@@ -236,10 +137,10 @@ begin
 		ID_corr=0.5,
 		true_random=true_random,
 		total_ticks=total_ticks,
-		seed=123497 
+		seed=1257
 	)
 	for t in 1:model03.total_ticks
-		model_step!(model03)
+		sl.model_step!(model03)
 	end
 end
   ╠═╡ =#
@@ -248,9 +149,9 @@ end
 # ╠═╡ disabled = true
 #=╠═╡
 begin
-	learningevo_plot = plot_stats(model, plot_title="A", legend=false)
-	cycle_plot = plot_stats(model02, plot_title="B", legend=false)
-	divergence_plot = plot_stats(model03, plot_title="C")
+	learningevo_plot = sl.plot_stats(model, plot_title="A", legend=false)
+	cycle_plot = sl.plot_stats(model02, plot_title="B", legend=false)
+	divergence_plot = sl.plot_stats(model03, plot_title="C")
 	
 	complot = plot(
 		learningevo_plot,
@@ -276,8 +177,6 @@ savefig(complot, "composite_plot.pdf")
 # ╠═c7330a46-b50b-4a17-9a0c-1e9a8aa04faa
 # ╟─92e1c8de-d9e8-41c1-aeb5-50c6db42b16a
 # ╟─0c24c2b8-f9c7-46e4-b752-1c8763be23c7
-# ╟─ff07f800-e569-4a3f-89bf-218b1f081820
-# ╟─9dee2817-576a-4400-815f-e96d7769f958
-# ╟─50558bb7-7844-49ab-be1c-0f91e951a582
-# ╟─59a25695-b3e9-4bbd-bccb-5b5576fab0be
-# ╟─d807c3c1-167c-4fe9-81a5-cadbed9d8bab
+# ╠═ff07f800-e569-4a3f-89bf-218b1f081820
+# ╠═59a25695-b3e9-4bbd-bccb-5b5576fab0be
+# ╠═d807c3c1-167c-4fe9-81a5-cadbed9d8bab

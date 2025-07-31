@@ -2,9 +2,6 @@
 #ANALYSIS 3.4
 @everywhere using Pkg
 @everywhere Pkg.activate("..")
-#@everywhere Pkg.instantiate()
-
-#@everywhere import SimilarityBiasedLearning as sl
 
 @everywhere include("../src/similarity_bias_ABM.jl")
 
